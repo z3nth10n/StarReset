@@ -1,0 +1,2 @@
+# StarReset
+Stardocks services reset.
