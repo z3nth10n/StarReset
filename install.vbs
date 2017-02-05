@@ -1,7 +1,7 @@
 ' Declaramos las variables
 
 Dim folderName, folderSelected, stardockPath, installPath, appendFolders, originalPath ' Strings
-Dim folderIndex, iter ' Ints
+Dim folderIndex, iter, langIndex, selectLang ' Ints
 
 ' Asignamos los objetos
 
@@ -9,6 +9,8 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 Set shell = CreateObject("WScript.Shell")
 Set oShell = CreateObject("Shell.Application")
 Set folderDict = CreateObject("Scripting.Dictionary")
+Set langDict = CreateObject("Scripting.Dictionary")
+Set langStr = CreateObject("Scripting.Dictionary")
 'Set req = CreateObject("Msxml2.XMLHttp.6.0")
 
 ' Asignamos las variables
@@ -20,6 +22,9 @@ originalPath = fso.GetParentFolderName(WScript.ScriptFullName)
 folderIndex = 0
 folderSelected = ""
 appendFolders = ""
+langIndex = 0
+iter = 0
+selectLang = 0
 
 ' Forzamos a que el script se ejecute como administrador
 
@@ -49,6 +54,30 @@ End Sub
 forceCScriptExecution
 
 ' Comenzamos a mostrar el programa
+
+echo "Select your language:"
+Break
+
+For Each objFolder In fso.GetFolder(originalPath & "\langs").Files
+   	langDict.Add langIndex, objFolder.Path
+    langIndex = langIndex + 1
+    echo langIndex & ".- " & fso.GetFileName(fso.GetFile(objFolder.Path))
+Next
+
+Break
+selectLang = WScript.StdIn.Read(1)
+
+' Cargamos los idiomas
+
+For Each line in Split(fso.OpenTextFile(langDict.Item(CInt(selectLang) - 1)).ReadAll, vbCrLf)
+	If InStr(line, "=") > 0 Then
+		Dim keyvaluePair : keyvaluePair = Split(line, "=")
+		langStr.Add keyvaluePair(0), keyvaluePair(1)
+	End If
+Next
+
+echo langStr.Item("test")
+Pause
 
 echo "Welcome to the StarReset wizard, with this tool you can have FOREVER Stardock services, like Deskcapes."
 echo "First we have to make some checks..."
@@ -80,9 +109,9 @@ If (fso.FolderExists(stardockPath)) Then ' Comprobamos que el script exista
 			End If
 		Next
 	Else
-		Dim i : i = CInt(folderSelected)
-		If IsNumeric(folderSelected) AND folderDict.Item(i - 1) <> "" Then
-			appendFolders = folderDict.Item(i - 1)
+		Dim j : j = CInt(folderSelected)
+		If IsNumeric(folderSelected) AND folderDict.Item(j - 1) <> "" Then
+			appendFolders = folderDict.Item(j - 1)
 		End If
 	End If
 
@@ -96,7 +125,7 @@ If (fso.FolderExists(stardockPath)) Then ' Comprobamos que el script exista
 	' Ejecutamos el .bat que tiene la utilidad del schtasks
 	oShell.ShellExecute "cmd.exe", "/c " & originalPath & "\runtask.bat", "", "runas", 1
 
-	' Falta eliminar el install.vbs
+	' Falta eliminar los archivos generados por el SFX (solo si estamos en los archivos temporales)
 	' ...
 
    	'req.open "GET", "https://raw.githubusercontent.com/Ikillnukes/StarReset/master/starreset.bat", False
