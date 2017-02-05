@@ -96,6 +96,9 @@ If (fso.FolderExists(stardockPath)) Then ' Comprobamos que el script exista
 	' Ejecutamos el .bat que tiene la utilidad del schtasks
 	oShell.ShellExecute "cmd.exe", "/c " & originalPath & "\runtask.bat", "", "runas", 1
 
+	' Falta eliminar el install.vbs
+	' ...
+
    	'req.open "GET", "https://raw.githubusercontent.com/Ikillnukes/StarReset/master/starreset.bat", False
 	'req.send
 
