@@ -1,5 +1,12 @@
 @echo off & setlocal EnableDelayedExpansion
 
+::Obtenemos si existe la tarea actual
+
+set "taskstate="
+for /f %%y in ('schtasks /query ^| findstr Ikillnukes') do (
+	for /f %%z in ('schtasks /query "%%y" ^| findstr "        STATE"') do set "taskstate=%%z"
+)
+
 ::Comprobamos si había tasks antiguas, las borramos
 
 for /f %%x in ('schtasks /query ^| findstr Ikillnukes') do schtasks /Delete /TN %%x /F
@@ -25,10 +32,12 @@ FOR /F "usebackq tokens=*" %%a in (
 
 	schtasks /CREATE /D (%day% - 1) /M (%month% + 1) /TN "Ikillnukes StarReset for %filename%" /TR "runas.exe /env /user:administrator %ProgramFiles%\Lerp2Dev\Ikillnukes\StarReset\runtask.bat"
 
-	::Ejecutamos la guinda del pastel (borrar los archivos)
+	::Ejecutamos la guinda del pastel (borrar los archivos) solo si la task no existia anteriormente
 
-	del /f /q "%folderpath%\License.sig"
-	del /f /q "%folderpath%\Cache.dat"
+	if "%taskstate%" NEQ "RUNNING" (
+		del /f /q "%folderpath%\License.sig"
+		del /f /q "%folderpath%\Cache.dat"
+	)
 
 	:: Mostramos una alerta diciendo que todo ha ido bien
 
