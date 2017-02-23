@@ -1,0 +1,3 @@
+- Make a language system
+- Ensure that application does its work
+- ...
